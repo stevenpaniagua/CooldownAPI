@@ -1,5 +1,5 @@
 import dev.prospect.cooldown.Cooldown;
-import dev.prospect.cooldown.manager.CooldownManager;
+import dev.prospect.cooldown.api.CooldownAPI;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,12 +19,10 @@ public class TestPlugin extends JavaPlugin implements Listener {
         getPluginManager().registerEvents(this, this);
     }
 
-    private final CooldownManager cooldownManager = new CooldownManager();
-
     @EventHandler
     public void onChat(AsyncPlayerChatEvent event) {
         Player player = event.getPlayer();
-        Optional<Cooldown> optional = Optional.ofNullable(this.cooldownManager.getCooldownByIdentifier(player.getUniqueId(), "CHAT"));
+        Optional<Cooldown> optional = Optional.ofNullable(CooldownAPI.getInstance().getCooldownManager().getCooldownByIdentifier(player.getUniqueId(), "CHAT"));
 
         if(optional.isPresent() && optional.get().isActive()) {
             event.setCancelled(true);
@@ -32,7 +30,7 @@ public class TestPlugin extends JavaPlugin implements Listener {
 
         } else {
             Cooldown cooldown = new Cooldown("CHAT", player.getUniqueId(), 10L, System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(10L));
-            this.cooldownManager.activate(player.getUniqueId(), cooldown);
+            CooldownAPI.getInstance().getCooldownManager().activate(player.getUniqueId(), cooldown);
         }
     }
 }
